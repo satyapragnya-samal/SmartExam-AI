@@ -1,0 +1,19 @@
+<!-- FILE: templates/exams/exam_confirm_delete.html -->
+{% extends 'base.html' %}
+
+{% block title %}Delete Examination | Exam Portal{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 2rem auto; text-align: center;">
+  <h2 class="card-title" style="color: var(--danger);">Confirm Deletion</h2>
+  <p style="margin-bottom: 1.5rem; color: var(--text-main);">
+    Are you sure you want to delete <strong>"{{ exam.title }}"</strong>? 
+    This will permanently remove all associated questions and student submission attempts.
+  </p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, Delete Exam</button>
+    <a href="{% url 'exam_list_teacher' %}" class="btn btn-secondary" style="margin-left: 0.5rem;">Cancel</a>
+  </form>
+</div>
+{% endblock %}

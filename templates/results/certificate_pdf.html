@@ -1,0 +1,120 @@
+<!-- FILE: templates/results/certificate_pdf.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>SmartExam AI Certificate of Completion</title>
+  <style>
+    @page {
+      size: letter landscape;
+      margin: 1.5cm;
+    }
+    body {
+      font-family: 'Helvetica', 'Arial', sans-serif;
+      color: #1e293b;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    .cert-border {
+      border: 6px double #4f46e5;
+      padding: 2.5cm 1.5cm;
+      background-color: #ffffff;
+    }
+    .badge-title {
+      font-size: 14pt;
+      font-weight: bold;
+      color: #4f46e5;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12pt;
+    }
+    h1 {
+      font-size: 32pt;
+      font-weight: 900;
+      color: #0f172a;
+      margin: 0 0 10pt 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .subtitle {
+      font-size: 13pt;
+      color: #64748b;
+      margin-bottom: 25pt;
+    }
+    .student-name {
+      font-size: 26pt;
+      font-weight: bold;
+      color: #1e1b4b;
+      border-bottom: 2px solid #cbd5e1;
+      display: inline-block;
+      padding-bottom: 5pt;
+      margin-bottom: 15pt;
+    }
+    .description {
+      font-size: 12pt;
+      color: #334155;
+      line-height: 1.6;
+      max-width: 650pt;
+      margin: 0 auto 25pt auto;
+    }
+    .highlight {
+      font-weight: bold;
+      color: #0f172a;
+    }
+    .meta-table {
+      width: 100%;
+      margin-top: 25pt;
+    }
+    .meta-cell {
+      width: 50%;
+      text-align: center;
+      font-size: 10pt;
+      color: #64748b;
+    }
+    .signature-line {
+      border-top: 1px solid #94a3b8;
+      width: 180pt;
+      margin: 0 auto 5pt auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cert-border">
+    <div class="badge-title">SmartExam AI Assessment Authority</div>
+    <h1>Certificate of Completion</h1>
+    <div class="subtitle">This is officially presented to acknowledge the successful examination of</div>
+
+    <div class="student-name">
+      {% if attempt.student.get_full_name %}
+        {{ attempt.student.get_full_name }}
+      {% else %}
+        {{ attempt.student.username }}
+      {% endif %}
+    </div>
+
+    <div class="description">
+      For successfully demonstrating proficiency in the assessment examination<br>
+      <span class="highlight" style="font-size: 15pt; color: #4338ca;">{{ attempt.exam.title }}</span><br>
+      achieving a score of <span class="highlight">{{ attempt.score }}/{{ attempt.total_marks }} ({{ attempt.percentage }}%)</span> with verified academic compliance.
+    </div>
+
+    <table class="meta-table">
+      <tr>
+        <td class="meta-cell">
+          <div class="signature-line"></div>
+          <strong>Date Issued:</strong> {{ attempt.submitted_at|date:"F d, Y" }}<br>
+          Verification ID: SE-{{ attempt.id }}-{{ attempt.submitted_at|date:"Ymd" }}
+        </td>
+        <td class="meta-cell">
+          <div class="signature-line"></div>
+          <strong>SmartExam AI Assessment Director</strong><br>
+          Automated Academic Verification
+        </td>
+      </tr>
+    </table>
+  </div>
+
+</body>
+</html>

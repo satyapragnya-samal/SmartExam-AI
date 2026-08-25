@@ -1,0 +1,43 @@
+<!-- FILE: templates/results/student_results.html -->
+{% extends 'base.html' %}
+
+{% block title %}My Examination Results{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h2 class="card-title">My Result History</h2>
+  
+  {% if attempts %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Exam</th>
+          <th>Date Attempted</th>
+          <th>Marks Scored</th>
+          <th>Percentage</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for attempt in attempts %}
+          <tr>
+            <td><strong>{{ attempt.exam.title }}</strong></td>
+            <td>{{ attempt.started_at|date:"M d, Y - H:i" }}</td>
+            <td>{{ attempt.score }} / {{ attempt.total_marks }}</td>
+            <td>{{ attempt.percentage }}%</td>
+            <td>
+              {% if attempt.passed %}
+                <span class="badge" style="background-color: var(--success); color: white;">PASSED</span>
+              {% else %}
+                <span class="badge" style="background-color: var(--danger); color: white;">FAILED</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p style="color: var(--text-muted); font-style: italic;">You have not completed any examinations yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

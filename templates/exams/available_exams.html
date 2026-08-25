@@ -1,0 +1,54 @@
+<!-- FILE: templates/exams/available_exams.html -->
+{% extends 'base.html' %}
+
+{% block title %}Available Examinations | ExamiX{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div style="margin-bottom: 2rem;">
+    <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 0.35rem;">Available Examinations</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">Select an assessment to begin. Please review time limits and proctoring rules beforehand.</p>
+  </div>
+
+  {% if exams %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+      {% for exam in exams %}
+        <div style="border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; background: #ffffff; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a;">{{ exam.title }}</h3>
+              <span class="badge badge-student">{{ exam.duration_minutes }} Mins</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem; line-height: 1.5;">
+              {{ exam.description|default:"Comprehensive assessment test."|truncatechars:100 }}
+            </p>
+          </div>
+
+          <div>
+            <div style="font-size: 0.8rem; color: #64748b; border-top: 1px solid var(--border); padding-top: 0.75rem; margin-bottom: 1rem; display: flex; justify-content: space-between;">
+              <span>Questions: <strong>{{ exam.questions.count }}</strong></span>
+              <span>Pass: <strong>{{ exam.pass_percentage }}%</strong></span>
+            </div>
+
+            {% if exam.id in completed_exam_ids %}
+              <div style="display: flex; gap: 0.5rem;">
+                <span class="badge" style="background: #e2e8f0; color: #475569; width: 100%; text-align: center; padding: 0.6rem; font-size: 0.85rem;">
+                  ✓ Already Attempted
+                </span>
+              </div>
+            {% else %}
+              <a href="{% url 'start_exam' exam.id %}" class="btn btn-primary" style="width: 100%; text-align: center;" onclick="return confirm('Starting this exam will initiate the timer and anti-cheat monitor. Are you ready?');">
+                Start Assessment
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div style="text-align: center; padding: 3rem; background: var(--bg-main); border-radius: var(--radius-sm);">
+      <p style="color: var(--text-muted);">There are no published examinations currently available.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

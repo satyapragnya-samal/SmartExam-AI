@@ -1,0 +1,15 @@
+<!-- FILE: templates/500.html -->
+{% extends 'base.html' %}
+
+{% block title %}Server Error (500){% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 550px; margin: 3rem auto; text-align: center; padding: 3rem 1.5rem;">
+  <h1 style="font-size: 4rem; color: var(--warning); margin-bottom: 0.5rem;">500</h1>
+  <h2 style="margin-bottom: 1rem;">Internal Server Error</h2>
+  <p style="color: var(--text-muted); margin-bottom: 2rem;">
+    An unexpected server condition occurred while processing your request. Please try again shortly.
+  </p>
+  <a href="{% url 'home' %}" class="btn btn-primary">Return to Home</a>
+</div>
+{% endblock %}

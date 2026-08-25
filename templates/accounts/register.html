@@ -1,0 +1,102 @@
+<!-- FILE: templates/accounts/register.html -->
+{% extends 'base.html' %}
+
+{% block title %}Create an Account | ExamiX{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 580px; margin: 1.5rem auto;">
+  <div style="text-align: center; margin-bottom: 2rem;">
+    <h2 style="font-size: 1.6rem; font-weight: 800; color: #0f172a; margin-bottom: 0.35rem;">Join ExamiX</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">Create your candidate or instructor workspace account.</p>
+  </div>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div class="form-group">
+        <label for="{{ form.first_name.id_for_label }}">First Name</label>
+        {{ form.first_name }}
+        {% if form.first_name.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 0.25rem;">{{ form.first_name.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+        {{ form.last_name }}
+        {% if form.last_name.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 0.25rem;">{{ form.last_name.errors.0 }}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="{{ form.username.id_for_label }}">Username *</label>
+      {{ form.username }}
+      {% if form.username.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 0.25rem;">{{ form.username.errors.0 }}</div>{% endif %}
+    </div>
+
+    <div class="form-group">
+      <label for="{{ form.email.id_for_label }}">Email Address *</label>
+      {{ form.email }}
+      {% if form.email.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 0.25rem;">{{ form.email.errors.0 }}</div>{% endif %}
+    </div>
+
+    <div class="form-group">
+      <label for="{{ form.role.id_for_label }}">Account Role *</label>
+      {{ form.role }}
+      {% if form.role.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 0.25rem;">{{ form.role.errors.0 }}</div>{% endif %}
+    </div>
+
+    <!-- Dynamic Instructor Passcode Field -->
+    <div class="form-group" id="instructorKeyGroup" style="display: none; background: #f8fafc; padding: 1rem; border-radius: var(--radius-sm); border: 1px dashed #94a3b8;">
+      <label for="{{ form.instructor_key.id_for_label }}" style="color: #4338ca; font-weight: 700;">
+        🔒 Faculty Secret Passcode *
+      </label>
+      {{ form.instructor_key }}
+      <small style="color: var(--text-muted); display: block; margin-top: 0.35rem; font-size: 0.8rem;">
+        Contact institution administrator if you do not have this key.
+      </small>
+      {% if form.instructor_key.errors %}
+        <div style="color: var(--danger); font-size: 0.8rem; margin-top: 0.25rem; font-weight: 600;">
+          {{ form.instructor_key.errors.0 }}
+        </div>
+      {% endif %}
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div class="form-group">
+        <label for="{{ form.password.id_for_label }}">Password *</label>
+        {{ form.password }}
+        {% if form.password.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 0.25rem;">{{ form.password.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.confirm_password.id_for_label }}">Confirm Password *</label>
+        {{ form.confirm_password }}
+        {% if form.confirm_password.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 0.25rem;">{{ form.confirm_password.errors.0 }}</div>{% endif %}
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.85rem; margin-top: 0.75rem; font-size: 1rem;">
+      Create Account
+    </button>
+  </form>
+
+  <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted);">
+    Already have an account? <a href="{% url 'login' %}" style="color: var(--primary); font-weight: 600;">Log In</a>
+  </p>
+</div>
+
+<script>
+  // Show/Hide the Instructor Passcode input based on Role selection
+  const roleSelect = document.getElementById('roleSelect');
+  const keyGroup = document.getElementById('instructorKeyGroup');
+
+  function updateKeyVisibility() {
+    if (roleSelect.value === 'teacher') {
+      keyGroup.style.display = 'block';
+    } else {
+      keyGroup.style.display = 'none';
+    }
+  }
+
+  roleSelect.addEventListener('change', updateKeyVisibility);
+  document.addEventListener('DOMContentLoaded', updateKeyVisibility);
+</script>
+{% endblock %}

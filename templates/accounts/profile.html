@@ -1,0 +1,35 @@
+<!-- FILE: templates/accounts/profile.html -->
+{% extends 'base.html' %}
+
+{% block title %}User Profile{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+  <h2 class="card-title">Profile Settings</h2>
+  <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Account Role:</strong> <span class="badge {% if user.profile.is_teacher %}badge-teacher{% else %}badge-student{% endif %}">{{ user.profile.get_role_display }}</span></p>
+    <p><strong>Member Since:</strong> {{ user.date_joined|date:"M d, Y" }}</p>
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="id_first_name">First Name</label>
+      {{ u_form.first_name }}
+    </div>
+    <div class="form-group">
+      <label for="id_last_name">Last Name</label>
+      {{ u_form.last_name }}
+    </div>
+    <div class="form-group">
+      <label for="id_email">Email</label>
+      {{ u_form.email }}
+    </div>
+    <div class="form-group">
+      <label for="id_bio">Bio / Notes</label>
+      {{ p_form.bio }}
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+  </form>
+</div>
+{% endblock %}

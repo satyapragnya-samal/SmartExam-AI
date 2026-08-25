@@ -1,0 +1,47 @@
+<!-- FILE: templates/exams/exam_form.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} | Exam Portal{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 650px; margin: 0 auto;">
+  <h2 class="card-title">{{ title }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="id_title">Exam Title *</label>
+      {{ form.title }}
+      {% for error in form.title.errors %}<p style="color: var(--danger); font-size: 0.85rem;">{{ error }}</p>{% endfor %}
+    </div>
+
+    <div class="form-group">
+      <label for="id_description">Description / Instructions</label>
+      {{ form.description }}
+      {% for error in form.description.errors %}<p style="color: var(--danger); font-size: 0.85rem;">{{ error }}</p>{% endfor %}
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div class="form-group">
+        <label for="id_duration_minutes">Duration (Minutes) *</label>
+        {{ form.duration_minutes }}
+        {% for error in form.duration_minutes.errors %}<p style="color: var(--danger); font-size: 0.85rem;">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="form-group">
+        <label for="id_pass_percentage">Pass Percentage (%) *</label>
+        {{ form.pass_percentage }}
+        {% for error in form.pass_percentage.errors %}<p style="color: var(--danger); font-size: 0.85rem;">{{ error }}</p>{% endfor %}
+      </div>
+    </div>
+
+    <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+      {{ form.is_published }}
+      <label for="id_is_published" style="margin-bottom: 0; cursor: pointer;">Publish immediately (visible to students)</label>
+    </div>
+
+    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+      <button type="submit" class="btn btn-primary">Save Examination</button>
+      <a href="{% url 'exam_list_teacher' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

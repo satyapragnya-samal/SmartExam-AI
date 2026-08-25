@@ -1,0 +1,77 @@
+<!-- FILE: templates/exams/teacher_dashboard.html -->
+{% extends 'base.html' %}
+
+{% block title %}Teacher Overview | ExamiX{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+  <div>
+    <h2 style="font-size: 1.75rem; font-weight: 800;">Instructor Workspace</h2>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">Overview of your examinations, test bank, and candidate results.</p>
+  </div>
+  <a href="{% url 'exam_create' %}" class="btn btn-primary">+ Create New Exam</a>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-value">{{ total_exams }}</div>
+    <div class="stat-label">Total Exams</div>
+  </div>
+  <div class="stat-card" style="border-left-color: var(--success);">
+    <div class="stat-value" style="color: var(--success);">{{ published_exams }}</div>
+    <div class="stat-label">Published Active</div>
+  </div>
+  <div class="stat-card" style="border-left-color: #7c3aed;">
+    <div class="stat-value" style="color: #7c3aed;">{{ total_questions }}</div>
+    <div class="stat-label">Question Bank</div>
+  </div>
+  <div class="stat-card" style="border-left-color: var(--warning);">
+    <div class="stat-value" style="color: var(--warning);">{{ total_attempts }}</div>
+    <div class="stat-label">Submissions</div>
+  </div>
+</div>
+
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <h3 class="card-title" style="margin-bottom: 0;">Recent Submissions</h3>
+    <a href="{% url 'exam_list_teacher' %}" class="btn btn-secondary" style="font-size: 0.85rem;">Manage All Exams</a>
+  </div>
+  
+  {% if recent_attempts %}
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Exam Title</th>
+            <th>Marks</th>
+            <th>Percentage</th>
+            <th>Status</th>
+            <th>Submitted At</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for attempt in recent_attempts %}
+            <tr>
+              <td><strong>{{ attempt.student.username }}</strong></td>
+              <td>{{ attempt.exam.title }}</td>
+              <td>{{ attempt.score }} / {{ attempt.total_marks }}</td>
+              <td><strong>{{ attempt.percentage }}%</strong></td>
+              <td>
+                {% if attempt.passed %}
+                  <span class="badge badge-success">Passed</span>
+                {% else %}
+                  <span class="badge badge-danger">Failed</span>
+                {% endif %}
+              </td>
+              <td style="color: var(--text-muted); font-size: 0.85rem;">{{ attempt.started_at|date:"M d, Y H:i" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p style="color: var(--text-muted); font-style: italic;">No student submissions recorded yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

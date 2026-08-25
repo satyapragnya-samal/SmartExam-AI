@@ -1,23 +1,35 @@
-# Virtual Environment
+# Environment Variables & Secrets
+.env
+*.env
+
+# Virtual Environments
 exam_env/
 venv/
 env/
+ENV/
 
-# Environment variables & secrets
-.env
-
-# Python bytecode & cache
+# Python Cache & Bytecode
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
+*.pyo
+*.pyd
 
-# SQLite fallback database
+# Local Database Files
 *.sqlite3
 db.sqlite3
 
-# Static / Media local folders (will configure later)
+# Static & Media local uploads
 media/
 
-# IDE / Editor folders
+# Logs & Operating System Files
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE & Editor Configurations
 .vscode/
 .idea/
+*.swp
+*.swo

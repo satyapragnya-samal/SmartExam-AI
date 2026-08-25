@@ -1,0 +1,180 @@
+<!-- FILE: templates/results/take_exam.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ exam.title }} | Live Proctored Exam{% endblock %}
+
+{% block content %}
+<!-- Proctoring Warning Modal -->
+<div id="proctorModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center;">
+  <div style="background: white; border-radius: 12px; padding: 2rem; max-width: 480px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);">
+    <div style="font-size: 3rem; margin-bottom: 0.5rem;">⚠️</div>
+    <h3 style="color: #dc2626; font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem;">Security Violation Detected!</h3>
+    <p id="modalMsg" style="color: #475569; font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.5;">
+      You navigated away from the exam window or switched tabs.
+    </p>
+    <div id="violationCountBadge" style="display: inline-block; padding: 0.35rem 1rem; border-radius: 9999px; background: #fee2e2; color: #991b1b; font-weight: 700; font-size: 0.85rem; margin-bottom: 1.5rem;">
+      Strike 1 of 3
+    </div>
+    <button type="button" id="resumeBtn" class="btn btn-primary" style="width: 100%;">I Understand, Return to Fullscreen</button>
+  </div>
+</div>
+
+<!-- Floating Exam HUD -->
+<div style="position: sticky; top: 75px; z-index: 100; background: #0f172a; color: white; padding: 1rem 1.75rem; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-lg); margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.1);">
+  <div>
+    <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.2rem; color: #ffffff;">{{ exam.title }}</h3>
+    <span style="font-size: 0.85rem; color: #94a3b8;">Questions: {{ questions.count }} | Total Marks: {{ exam.total_marks }}</span>
+  </div>
+  
+  <div style="display: flex; gap: 2rem; align-items: center;">
+    <div style="text-align: center;">
+      <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; font-weight: 700;">Proctoring</span>
+      <div id="proctorStatus" style="font-size: 0.85rem; font-weight: 700; color: #10b981;">● Active (0/3)</div>
+    </div>
+    <div style="text-align: right;">
+      <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; font-weight: 700;">Remaining Time</span>
+      <div id="timer" style="font-size: 1.6rem; font-weight: 800; color: #38bdf8; font-family: monospace;">--:--</div>
+    </div>
+  </div>
+</div>
+
+<form id="examForm" method="post">
+  {% csrf_token %}
+  <input type="hidden" name="warning_count" id="warning_count_field" value="0">
+  <input type="hidden" name="is_disqualified" id="is_disqualified_field" value="false">
+  
+  {% for q in questions %}
+    <div class="card" style="margin-bottom: 1.75rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem;">
+        <h4 style="font-size: 1.1rem; font-weight: 600; line-height: 1.5;">
+          <span style="color: var(--primary); font-weight: 800;">Q{{ forloop.counter }}.</span> {{ q.question_text }}
+        </h4>
+        <span class="badge badge-student">{{ q.marks }} Pt{% if q.marks > 1 %}s{% endif %}</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <label class="option-item">
+          <input type="radio" name="question_{{ q.id }}" value="A">
+          <span><strong>A.</strong> {{ q.option_a }}</span>
+        </label>
+
+        <label class="option-item">
+          <input type="radio" name="question_{{ q.id }}" value="B">
+          <span><strong>B.</strong> {{ q.option_b }}</span>
+        </label>
+
+        <label class="option-item">
+          <input type="radio" name="question_{{ q.id }}" value="C">
+          <span><strong>C.</strong> {{ q.option_c }}</span>
+        </label>
+
+        <label class="option-item">
+          <input type="radio" name="question_{{ q.id }}" value="D">
+          <span><strong>D.</strong> {{ q.option_d }}</span>
+        </label>
+      </div>
+    </div>
+  {% endfor %}
+
+  <div style="display: flex; justify-content: flex-end; margin-bottom: 4rem;">
+    <button type="submit" id="submitBtn" class="btn btn-success" style="padding: 0.9rem 2.5rem; font-size: 1rem;" onclick="return confirm('Are you sure you want to finish and submit your exam?');">
+      Submit Examination
+    </button>
+  </div>
+</form>
+
+<script>
+  let duration = {{ duration_seconds }};
+  const timerElement = document.getElementById('timer');
+  const form = document.getElementById('examForm');
+  const proctorModal = document.getElementById('proctorModal');
+  const resumeBtn = document.getElementById('resumeBtn');
+  const violationBadge = document.getElementById('violationCountBadge');
+  const proctorStatus = document.getElementById('proctorStatus');
+  const warningField = document.getElementById('warning_count_field');
+  const disqualifiedField = document.getElementById('is_disqualified_field');
+
+  let warningCount = 0;
+  const MAX_WARNINGS = 3;
+  let isSubmitting = false;
+
+  form.addEventListener('submit', () => {
+    isSubmitting = true;
+  });
+
+  // Countdown timer
+  const countdown = setInterval(() => {
+    const minutes = Math.floor(duration / 60);
+    const seconds = duration % 60;
+    timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+    if (duration <= 60) {
+      timerElement.style.color = '#ef4444';
+    } else if (duration <= 300) {
+      timerElement.style.color = '#f59e0b';
+    }
+
+    if (duration <= 0) {
+      clearInterval(countdown);
+      if (!isSubmitting) {
+        alert('Time is up! Submitting examination.');
+        form.submit();
+      }
+    }
+    duration--;
+  }, 1000);
+
+  // Anti-Cheating: Tab Switch & Window Focus Monitoring
+  function registerViolation(reason) {
+    if (isSubmitting) return;
+
+    warningCount++;
+    warningField.value = warningCount;
+    proctorStatus.textContent = `● Warnings (${warningCount}/${MAX_WARNINGS})`;
+    proctorStatus.style.color = '#ef4444';
+
+    if (warningCount >= MAX_WARNINGS) {
+      isSubmitting = true;
+      disqualifiedField.value = 'true';
+      alert('Security violation limit exceeded (3 strikes). Your assessment is being submitted and flagged for instructor review.');
+      form.submit();
+    } else {
+      violationBadge.textContent = `Strike ${warningCount} of ${MAX_WARNINGS}`;
+      proctorModal.style.display = 'flex';
+    }
+  }
+
+  // Detect Tab / App Switching (Page Visibility API)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      registerViolation('tab_switch');
+    }
+  });
+
+  // Detect Window Blur (clicking off-screen / split screen)
+  window.addEventListener('blur', () => {
+    registerViolation('window_blur');
+  });
+
+  // Resume Modal Click (Re-request Fullscreen)
+  resumeBtn.addEventListener('click', () => {
+    proctorModal.style.display = 'none';
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  });
+
+  // Disable Right-Click Context Menu
+  document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+  // Disable Copy, Cut, Paste, PrintScreen, and DevTools shortcuts
+  document.addEventListener('keydown', (e) => {
+    if (
+      (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'u' || e.key === 'a' || e.key === 'p')) ||
+      e.key === 'F12'
+    ) {
+      e.preventDefault();
+    }
+  });
+</script>
+{% endblock %}

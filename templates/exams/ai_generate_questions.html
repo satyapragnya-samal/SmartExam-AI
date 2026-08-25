@@ -1,0 +1,56 @@
+<!-- FILE: templates/exams/ai_generate_questions.html -->
+{% extends 'base.html' %}
+
+{% block title %}AI Question Generator | {{ exam.title }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 650px; margin: 0 auto;">
+  <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+    <span style="font-size: 2rem;">✨</span>
+    <div>
+      <h2 style="font-size: 1.4rem; font-weight: 800;">AI Question Generator</h2>
+      <p style="color: var(--text-muted); font-size: 0.85rem;">Target Exam: <strong>{{ exam.title }}</strong></p>
+    </div>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="topic">Topic / Concept Specification *</label>
+      <input type="text" name="topic" id="topic" class="form-control" placeholder="e.g. Python Object-Oriented Programming, SQL Joins, TCP/IP..." required>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+      <div class="form-group">
+        <label for="count">Question Count</label>
+        <select name="count" id="count" class="form-control">
+          <option value="3">3 Questions</option>
+          <option value="5" selected>5 Questions</option>
+          <option value="10">10 Questions</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="difficulty">Difficulty</label>
+        <select name="difficulty" id="difficulty" class="form-control">
+          <option value="beginner">Beginner</option>
+          <option value="medium" selected>Intermediate</option>
+          <option value="advanced">Advanced</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="marks">Marks per Q</label>
+        <input type="number" name="marks" id="marks" class="form-control" value="1" min="1">
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+      <a href="{% url 'exam_detail' exam.id %}" class="btn btn-secondary">Cancel</a>
+      <button type="submit" class="btn btn-primary" id="genBtn" onclick="this.innerHTML='⏳ Generating with Gemini...';">
+        ✨ Generate & Add MCQs
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

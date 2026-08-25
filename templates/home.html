@@ -1,0 +1,59 @@
+<!-- FILE: templates/home.html -->
+{% extends 'base.html' %}
+
+{% block title %}SmartExam AI | AI-Powered Online Examination System{% endblock %}
+
+{% block content %}
+<div class="card" style="text-align: center; padding: 4.5rem 2rem; margin-top: 1.5rem; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);">
+  <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: #e0e7ff; color: #3730a3; padding: 0.35rem 1rem; border-radius: 50px; font-size: 0.85rem; font-weight: 700; margin-bottom: 1.5rem;">
+    ✨ Next-Generation Assessment Platform
+  </div>
+
+  <h1 style="font-size: 2.75rem; font-weight: 900; line-height: 1.2; margin-bottom: 1rem; color: #0f172a;">
+    SmartExam <span style="color: var(--primary);">AI</span>
+  </h1>
+  
+  <p style="font-size: 1.25rem; font-weight: 600; color: #4338ca; margin-bottom: 0.5rem;">
+    AI-Powered Online Examination System
+  </p>
+
+  <p style="font-size: 1.05rem; color: var(--text-muted); max-width: 620px; margin: 0 auto 2.5rem auto; line-height: 1.6;">
+    An end-to-end examination ecosystem featuring automated question authoring, intelligent anti-cheat monitoring, dynamic PDF certification, and Gemini AI diagnostic feedback.
+  </p>
+
+  <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+    <a href="{% url 'register' %}" class="btn btn-primary" style="padding: 0.85rem 2rem; font-size: 1.05rem;">
+      Get Started Free
+    </a>
+    <a href="{% url 'login' %}" class="btn btn-secondary" style="padding: 0.85rem 2rem; font-size: 1.05rem;">
+      Candidate / Faculty Login
+    </a>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 4rem; text-align: left;">
+    <div style="padding: 1.25rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: white;">
+      <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">✨</div>
+      <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.25rem;">AI Question Generator</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">Automatically generate curriculum-aligned MCQs directly into the exam bank.</p>
+    </div>
+
+    <div style="padding: 1.25rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: white;">
+      <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🛡️</div>
+      <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.25rem;">Active Anti-Cheat</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">Page visibility tracking and window blur detection with a 3-strike rule.</p>
+    </div>
+
+    <div style="padding: 1.25rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: white;">
+      <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🤖</div>
+      <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.25rem;">Diagnostic Feedback</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">Instant error breakdown and customized study plans powered by Gemini 2.5 Flash.</p>
+    </div>
+
+    <div style="padding: 1.25rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: white;">
+      <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📜</div>
+      <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.25rem;">Verified Certificates</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">Dynamic server-side PDF certification generated for passing candidates.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

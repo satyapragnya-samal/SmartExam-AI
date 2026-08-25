@@ -1,0 +1,159 @@
+<!-- FILE: templates/base.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}SmartExam AI | AI-Powered Online Examination System{% endblock %}</title>
+
+  <!-- Browser Favicon Logo -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'><path d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/></svg>">
+
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <header>
+    <nav class="navbar">
+      <!-- Header Brand with AI Icon Logo -->
+      <a href="{% url 'home' %}" class="brand" style="display: flex; align-items: center; gap: 0.65rem; text-decoration: none;">
+        <!-- Logo Emblem -->
+        <div style="width: 38px; height: 38px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.35);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+
+        <!-- Brand Text -->
+        <div style="display: flex; flex-direction: column; line-height: 1.15;">
+          <span style="font-size: 1.25rem; font-weight: 900; letter-spacing: -0.5px; color: #dee3ef;">
+            SmartExam <span style="background: linear-gradient(135deg, #8b86e9, #4d298a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI</span>
+          </span>
+          <span style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b;">
+            Examination System
+          </span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        {% if user.is_authenticated %}
+          {% if user.profile.is_teacher %}
+            <li><a href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+            <li><a href="{% url 'exam_list_teacher' %}">Exams</a></li>
+          {% else %}
+            <li><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+            <li><a href="{% url 'available_exams' %}">Tests</a></li>
+            <li><a href="{% url 'student_results' %}">Results</a></li>
+          {% endif %}
+          <li>
+            <span class="badge {% if user.profile.is_teacher %}badge-teacher{% else %}badge-student{% endif %}">
+              {{ user.profile.get_role_display }}
+            </span>
+          </li>
+          <li><a href="{% url 'profile' %}"><strong>{{ user.username }}</strong></a></li>
+          <li>
+            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">Logout</button>
+            </form>
+          </li>
+        {% else %}
+          <li><a href="{% url 'login' %}">Login</a></li>
+          <li><a href="{% url 'register' %}" class="btn btn-primary" style="padding: 0.45rem 1rem;">Sign Up</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li class="alert alert-{{ message.tags }}">
+            <span>{{ message }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- Floating Doubt Chatbot Widget -->
+  <div id="doubtBotWidget" style="position: fixed; bottom: 20px; right: 20px; z-index: 10000;">
+    <button id="chatToggleBtn" style="width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; border: none; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4); cursor: pointer; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;" onclick="toggleChat();">
+      💬
+    </button>
+
+    <div id="chatBox" style="display: none; width: 340px; height: 440px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; flex-direction: column; overflow: hidden; margin-bottom: 10px;">
+      <div style="background: #0f172a; color: white; padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem;">
+          <span>🤖</span> SmartExam AI Assistant
+        </div>
+        <button onclick="toggleChat();" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 1.1rem;">✕</button>
+      </div>
+
+      <div id="chatMessages" style="flex: 1; padding: 1rem; overflow-y: auto; font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.75rem; background: #f8fafc;">
+        <div style="align-self: flex-start; background: #e0e7ff; color: #1e1b4b; padding: 0.5rem 0.75rem; border-radius: 8px; max-width: 80%;">
+          Hello! 👋 Welcome to <strong>SmartExam AI</strong>. Need help understanding a concept or reviewing for an assessment? Ask me anything!
+        </div>
+      </div>
+
+      <div style="padding: 0.75rem; border-top: 1px solid #e2e8f0; display: flex; gap: 0.5rem; background: white;">
+        <input type="text" id="chatInput" placeholder="Ask a question..." style="flex: 1; padding: 0.5rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; outline: none;" onkeypress="if(event.key==='Enter') sendChatMsg();">
+        <button onclick="sendChatMsg();" style="background: #4f46e5; color: white; border: none; border-radius: 6px; padding: 0.5rem 0.85rem; cursor: pointer; font-weight: 600; font-size: 0.85rem;">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; {% now "Y" %} <strong>SmartExam AI</strong>. AI-Powered Online Examination System.</p>
+  </footer>
+
+  <script>
+  function toggleChat() {
+    const box = document.getElementById('chatBox');
+    box.style.display = box.style.display === 'none' ? 'flex' : 'none';
+  }
+
+  function sendChatMsg() {
+    const input = document.getElementById('chatInput');
+    const msgs = document.getElementById('chatMessages');
+    const txt = input.value.trim();
+    if (!txt) return;
+
+    msgs.innerHTML += `<div style="align-self: flex-end; background: #4f46e5; color: white; padding: 0.5rem 0.75rem; border-radius: 8px; max-width: 80%;">${txt}</div>`;
+    input.value = '';
+    msgs.scrollTop = msgs.scrollHeight;
+
+    const botId = 'bot_' + Date.now();
+    msgs.innerHTML += `<div id="${botId}" style="align-self: flex-start; background: #e0e7ff; color: #1e1b4b; padding: 0.5rem 0.75rem; border-radius: 8px; max-width: 80%;"><em>Thinking...</em></div>`;
+    msgs.scrollTop = msgs.scrollHeight;
+
+    fetch("{% url 'doubt_chat_api' %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({ message: txt, context: 'Online Examination Preparation' })
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById(botId).innerText = data.reply;
+      msgs.scrollTop = msgs.scrollHeight;
+    })
+    .catch(() => {
+      document.getElementById(botId).innerText = 'Error connecting to SmartExam AI.';
+    });
+  }
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

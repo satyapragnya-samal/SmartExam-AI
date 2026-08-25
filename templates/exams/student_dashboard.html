@@ -1,0 +1,54 @@
+<!-- FILE: templates/exams/student_dashboard.html -->
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard | ExamiX{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+  <div>
+    <h2 style="font-size: 1.75rem; font-weight: 800;">Welcome back, {{ user.first_name|default:user.username }}! 👋</h2>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">Track your progress and attempt published examinations.</p>
+  </div>
+  <a href="{% url 'available_exams' %}" class="btn btn-primary">Browse Available Exams</a>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-value">{{ total_attempted }}</div>
+    <div class="stat-label">Exams Completed</div>
+  </div>
+  <div class="stat-card" style="border-left-color: var(--success);">
+    <div class="stat-value" style="color: var(--success);">{{ passed_count }}</div>
+    <div class="stat-label">Exams Passed</div>
+  </div>
+</div>
+
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <h3 class="card-title" style="margin-bottom: 0;">Featured Examinations</h3>
+    <a href="{% url 'available_exams' %}" class="btn btn-secondary" style="font-size: 0.85rem;">View All</a>
+  </div>
+  
+  {% if available_exams %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+      {% for exam in available_exams %}
+        <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.5rem; background: #ffffff; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <h4 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main);">{{ exam.title }}</h4>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">{{ exam.description|default:"No description provided."|truncatewords:15 }}</p>
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: var(--secondary);">
+              <span>⏱️ {{ exam.duration_minutes }}m</span>
+              <span>📝 {{ exam.total_questions }} Qs</span>
+              <span>🎯 {{ exam.total_marks }} Pts</span>
+            </div>
+          </div>
+          <a href="{% url 'start_exam' exam.id %}" class="btn btn-primary" style="width: 100%; text-align: center;">Take Exam</a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p style="color: var(--text-muted); font-style: italic;">No active examinations found.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+<!-- FILE: templates/exams/exam_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ exam.title }} | Exam Overview{% endblock %}
+
+{% block content %}
+<!-- Exam Header Card -->
+<div class="card" style="margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+        <h2 style="font-size: 1.8rem; font-weight: 800;">{{ exam.title }}</h2>
+        {% if exam.is_published %}
+          <span class="badge badge-success">● Published</span>
+        {% else %}
+          <span class="badge" style="background: #fef3c7; color: #92400e;">Draft Mode</span>
+        {% endif %}
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">{{ exam.description|default:"No description provided." }}</p>
+    </div>
+
+    <!-- Exam Action Buttons -->
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <a href="{% url 'exam_edit' exam.id %}" class="btn btn-secondary">Edit Exam</a>
+      <a href="{% url 'exam_toggle_publish' exam.id %}" class="btn {% if exam.is_published %}btn-secondary{% else %}btn-success{% endif %}">
+        {% if exam.is_published %}Unpublish{% else %}Publish Exam{% endif %}
+      </a>
+      <a href="{% url 'exam_delete' exam.id %}" class="btn btn-danger" onclick="return confirm('Are you sure you want to permanently delete this exam?');">Delete</a>
+    </div>
+  </div>
+
+  <!-- Metric Badges Row -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: var(--bg-main); padding: 1.25rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+    <div>⏱️ <strong>Duration:</strong> {{ exam.duration_minutes }} Minutes</div>
+    <div>📝 <strong>Questions:</strong> {{ questions.count }}</div>
+    <div>🎯 <strong>Total Marks:</strong> {{ exam.total_marks }}</div>
+    <div>📈 <strong>Pass Percentage:</strong> {{ exam.pass_percentage }}%</div>
+  </div>
+</div>
+
+<!-- Questions Management Card -->
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+    <div>
+      <h3 class="card-title" style="margin-bottom: 0.2rem;">Question Bank ({{ questions.count }})</h3>
+      <p style="color: var(--text-muted); font-size: 0.85rem;">Add questions manually or generate them automatically using Google Gemini AI.</p>
+    </div>
+
+    <!-- AI & Manual Add Buttons -->
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <a href="{% url 'ai_generate_questions' exam.id %}" class="btn" style="background-color: #7c3aed; color: white; box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);">
+        ✨ Generate with AI
+      </a>
+      <a href="{% url 'question_create' exam.id %}" class="btn btn-primary">+ Add Question</a>
+    </div>
+  </div>
+
+  {% if questions %}
+    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+      {% for q in questions %}
+        <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem; background: #ffffff;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+            <h4 style="font-size: 1.05rem; font-weight: 700;">
+              <span style="color: var(--primary);">Q{{ forloop.counter }}.</span> {{ q.question_text }}
+            </h4>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span class="badge badge-student">{{ q.marks }} Pt{% if q.marks > 1 %}s{% endif %}</span>
+              <a href="{% url 'question_delete' q.id %}" style="color: var(--danger); text-decoration: none; font-size: 0.85rem; font-weight: 600;" onclick="return confirm('Delete this question?');">Delete</a>
+            </div>
+          </div>
+
+          <!-- Options Grid -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.9rem;">
+            <div style="padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); {% if q.correct_answer == 'A' %}background: #ecfdf5; border-color: #10b981; font-weight: 600; color: #065f46;{% endif %}">
+              <strong>A.</strong> {{ q.option_a }} {% if q.correct_answer == 'A' %}✓{% endif %}
+            </div>
+            <div style="padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); {% if q.correct_answer == 'B' %}background: #ecfdf5; border-color: #10b981; font-weight: 600; color: #065f46;{% endif %}">
+              <strong>B.</strong> {{ q.option_b }} {% if q.correct_answer == 'B' %}✓{% endif %}
+            </div>
+            <div style="padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); {% if q.correct_answer == 'C' %}background: #ecfdf5; border-color: #10b981; font-weight: 600; color: #065f46;{% endif %}">
+              <strong>C.</strong> {{ q.option_c }} {% if q.correct_answer == 'C' %}✓{% endif %}
+            </div>
+            <div style="padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); {% if q.correct_answer == 'D' %}background: #ecfdf5; border-color: #10b981; font-weight: 600; color: #065f46;{% endif %}">
+              <strong>D.</strong> {{ q.option_d }} {% if q.correct_answer == 'D' %}✓{% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div style="text-align: center; padding: 3rem 1.5rem; background: var(--bg-main); border-radius: var(--radius-sm); border: 1px dashed var(--border);">
+      <p style="color: var(--text-muted); margin-bottom: 1rem;">No questions added yet to this exam.</p>
+      <div style="display: flex; justify-content: center; gap: 0.75rem;">
+        <a href="{% url 'ai_generate_questions' exam.id %}" class="btn" style="background-color: #7c3aed; color: white;">✨ Auto-Generate with AI</a>
+        <a href="{% url 'question_create' exam.id %}" class="btn btn-primary">+ Add Manually</a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
